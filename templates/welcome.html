@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0F172A" />
+  <title>GramSwasthya Mitra — Welcome</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="manifest" href="/static/manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="GramSwasthya" />
+  <style>
+    /* Specific Welcome Layout */
+    .welcome-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      text-align: center;
+      padding: 60px 20px 40px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 20px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+      padding: 16px 32px;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      min-width: 200px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-primary);
+      border: 2px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-2px);
+      background: var(--primary-ghost);
+    }
+
+    /* Restyled Language Section */
+    .lang-section {
+      margin-top: 60px;
+      width: 100%;
+    }
+
+    .lang-section-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 20px;
+    }
+
+    .lang-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 12px;
+    }
+
+    .lang-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 16px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+
+    .lang-btn:hover {
+      border-color: var(--primary);
+      color: var(--text-primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn.selected {
+      background: var(--primary-ghost);
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary);
+    }
+
+    .lang-native {
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .lang-eng {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="welcome-container">
+    <header class="hero" style="background: none; padding: 0;">
+      <p class="hero-badge"><span class="hero-badge-dot"></span>AI for Bharat</p>
+      <h1>Gram<span>Swasthya</span> Mitra</h1>
+      <p class="hero-subtitle">AI-powered health guidance for every village. Select your language and continue.</p>
+    </header>
+
+    <div class="lang-section card">
+      <h3 class="lang-section-title">🌐 Choose Your Language — अपनी भाषा चुनें</h3>
+      <div class="lang-grid" id="langGrid">
+        <button class="lang-btn selected" data-lang="en" onclick="selectLang('en')">
+          <span class="lang-native">Aa</span>
+          <span class="lang-eng">English</span>
+        </button>
+        <button class="lang-btn" data-lang="hi" onclick="selectLang('hi')">
+          <span class="lang-native">अ</span>
+          <span class="lang-eng">Hindi</span>
+        </button>
+        <button class="lang-btn" data-lang="bn" onclick="selectLang('bn')">
+          <span class="lang-native">অ</span>
+          <span class="lang-eng">Bengali</span>
+        </button>
+        <button class="lang-btn" data-lang="mr" onclick="selectLang('mr')">
+          <span class="lang-native">म</span>
+          <span class="lang-eng">Marathi</span>
+        </button>
+        <button class="lang-btn" data-lang="gu" onclick="selectLang('gu')">
+          <span class="lang-native">ગ</span>
+          <span class="lang-eng">Gujarati</span>
+        </button>
+        <button class="lang-btn" data-lang="pa" onclick="selectLang('pa')">
+          <span class="lang-native">ਅ</span>
+          <span class="lang-eng">Punjabi</span>
+        </button>
+        <button class="lang-btn" data-lang="ta" onclick="selectLang('ta')">
+          <span class="lang-native">அ</span>
+          <span class="lang-eng">Tamil</span>
+        </button>
+        <button class="lang-btn" data-lang="te" onclick="selectLang('te')">
+          <span class="lang-native">అ</span>
+          <span class="lang-eng">Telugu</span>
+        </button>
+        <button class="lang-btn" data-lang="kn" onclick="selectLang('kn')">
+          <span class="lang-native">ಅ</span>
+          <span class="lang-eng">Kannada</span>
+        </button>
+        <button class="lang-btn" data-lang="ml" onclick="selectLang('ml')">
+          <span class="lang-native">അ</span>
+          <span class="lang-eng">Malayalam</span>
+        </button>
+        <button class="lang-btn" data-lang="or" onclick="selectLang('or')">
+          <span class="lang-native">ଅ</span>
+          <span class="lang-eng">Odia</span>
+        </button>
+        <button class="lang-btn" data-lang="ur" onclick="selectLang('ur')">
+          <span class="lang-native">ا</span>
+          <span class="lang-eng">Urdu</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <a href="/register_page" class="btn-primary">Register Now</a>
+      <a href="/login_page" class="btn-secondary"
+        style="border-color: rgba(59,130,246,0.4); color: var(--primary-light);">Login</a>
+      <a href="/home" class="btn-secondary" onclick="handleGuest(event)">Continue as Guest</a>
+    </div>
+
+    <div style="text-align:center; margin-top:20px;">
+      <a href="/login_page"
+        style="font-size:0.82rem; color:var(--accent-light); text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border:1px solid rgba(16,185,129,0.25); border-radius:50px; transition:all 0.2s;"
+        onmouseover="this.style.background='rgba(16,185,129,0.08)'" onmouseout="this.style.background=''">&#127973; ASHA
+        Worker? Login here</a>
+    </div>
+  </div>
+
+  <script>
+    var selectedLang = localStorage.getItem("gsm_lang") || "en";
+
+    function selectLang(lang) {
+      selectedLang = lang;
+      localStorage.setItem("gsm_lang", lang);
+      document.querySelectorAll(".lang-btn").forEach(function (btn) {
+        btn.classList.toggle("selected", btn.dataset.lang === lang);
+      });
+    }
+
+    function handleGuest(e) {
+      localStorage.setItem("gsm_lang", selectedLang);
+    }
+
+    // Initialize on load
+    document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll(".lang-btn").forEach(function (btn) {
+        btn.classList.toggle("selected", btn.dataset.lang === selectedLang);
+      });
+    });
+
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/static/sw.js').catch(function (err) {
+        console.log('[SW] Registration failed:', err);
+      });
+    }
+  </script>
+</body>
+
+</html>

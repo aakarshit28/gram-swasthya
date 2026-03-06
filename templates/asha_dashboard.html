@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0F172A" />
+    <link rel="manifest" href="/static/manifest.json" />
+    <title>ASHA Worker Dashboard — GramSwasthya Mitra</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <style>
+        .dashboard-page {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 20px 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Top bar */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0 8px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .asha-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 50px;
+            padding: 8px 18px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--accent-light);
+            letter-spacing: 0.04em;
+        }
+
+        .asha-badge-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulse 2s infinite;
+        }
+
+        .top-right {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-assess {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--accent) 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-assess:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: var(--danger-bg);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--danger);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.15);
+            transform: translateY(-1px);
+        }
+
+        /* Welcome section */
+        .welcome-section {
+            margin: 28px 0 24px;
+        }
+
+        .welcome-section h1 {
+            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 6px;
+        }
+
+        .welcome-section h1 span {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-section p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 18px 16px;
+            text-align: center;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .stat-card .val {
+            display: block;
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .stat-card .lbl {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .val-blue {
+            color: var(--primary);
+        }
+
+        .val-red {
+            color: var(--danger);
+        }
+
+        .val-green {
+            color: var(--accent);
+        }
+
+        .val-warn {
+            color: var(--warning);
+        }
+
+        /* Section header */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .section-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Patient list */
+        .patient-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .patient-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            transition: all 0.2s;
+            animation: fadeUp 0.3s ease both;
+        }
+
+        .patient-card:hover {
+            border-color: rgba(59, 130, 246, 0.2);
+            box-shadow: var(--shadow-md);
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .patient-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-ghost);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .patient-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .patient-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 3px;
+        }
+
+        .patient-disease {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .patient-date {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        .patient-badges {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+            align-items: center;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .badge-high {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .badge-medium {
+            background: var(--warning-bg);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .badge-low {
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .badge-conf {
+            background: var(--primary-ghost);
+            color: var(--primary-light);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        /* Empty state */
+        .empty-state {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 60px 30px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 14px;
+            display: block;
+        }
+
+        .empty-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .empty-text {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            margin-bottom: 22px;
+        }
+
+        /* Skeletons */
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-card) 50%, var(--bg-elevated) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+            border-radius: var(--radius-md);
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .skeleton-card {
+            height: 76px;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .patient-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .patient-badges {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-page">
+        <!-- Top bar -->
+        <div class="top-bar">
+            <div class="asha-badge">
+                <span class="asha-badge-dot"></span>
+                ASHA Worker Dashboard
+            </div>
+            <div class="top-right">
+                <a href="/home" class="btn-assess">🩺 New Patient Assessment</a>
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+
+        <!-- Welcome -->
+        <div class="welcome-section">
+            <h1 id="dashTitle">Welcome, <span id="ashaName">ASHA Worker</span></h1>
+            <p id="dashSubtitle">Loading your patient assessments…</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <span class="val val-blue" id="statTotal">—</span>
+                <span class="lbl">Total Patients</span>
+            </div>
+            <div class="stat-card">
+                <span class="val val-green" id="statToday">—</span>
+                <span class="lbl">Assessed Today</span>
+            </div>
+            <div class="stat-card">
+                <span class="val val-red" id="statHigh">—</span>
+                <span class="lbl">High Urgency</span>
+            </div>
+            <div class="stat-card" style="font-size:0.9rem; padding: 14px;">
+                <span class="val val-warn" id="statTopDisease" style="font-size:1.1rem; word-break:break-word;">—</span>
+                <span class="lbl">Most Common Condition</span>
+            </div>
+        </div>
+
+        <!-- Patient list -->
+        <div class="section-header">
+            <span class="section-title">👥 Patient Assessment History</span>
+            <span class="section-sub" id="listCount"></span>
+        </div>
+
+        <div id="content">
+            <div class="skeleton skeleton-card"></div>
+            <div class="skeleton skeleton-card"></div>
+            <div class="skeleton skeleton-card" style="opacity:0.5;"></div>
+        </div>
+    </div>
+
+    <script>
+        async function init() {
+            try {
+                var userResp = await fetch('/get_user');
+                var user = await userResp.json();
+
+                if (!user.user_id || user.role !== 'asha') {
+                    window.location.href = '/';
+                    return;
+                }
+
+                document.getElementById('ashaName').textContent = user.name;
+                await loadPatients();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadPatients() {
+            try {
+                var resp = await fetch('/asha_patients');
+                var data = await resp.json();
+
+                if (data.error) {
+                    window.location.href = '/';
+                    return;
+                }
+
+                var stats = data.stats || {};
+                document.getElementById('statTotal').textContent = stats.total || 0;
+                document.getElementById('statToday').textContent = stats.today_count || 0;
+                document.getElementById('statHigh').textContent = stats.high_urgency || 0;
+                document.getElementById('statTopDisease').textContent = stats.top_disease || '—';
+
+                if (!stats.total) {
+                    document.getElementById('dashSubtitle').textContent = 'No patient assessments yet. Click "New Patient Assessment" to start.';
+                } else {
+                    document.getElementById('dashSubtitle').textContent =
+                        'You have assessed ' + stats.total + ' patient' + (stats.total !== 1 ? 's' : '') + ' so far.';
+                    document.getElementById('listCount').textContent = stats.total + ' records';
+                }
+
+                renderPatients(data.assessments || []);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderPatients(assessments) {
+            var content = document.getElementById('content');
+
+            if (!assessments.length) {
+                content.innerHTML =
+                    '<div class="empty-state">' +
+                    '<span class="empty-icon">👥</span>' +
+                    '<h3 class="empty-title">No patients yet</h3>' +
+                    '<p class="empty-text">When you assess patients, they\'ll appear here for your records.</p>' +
+                    '<a href="/home" class="btn-assess" style="display:inline-flex;">🩺 Start First Assessment</a>' +
+                    '</div>';
+                return;
+            }
+
+            var html = '<div class="patient-list">';
+            assessments.forEach(function (a, i) {
+                var name = a.patient_name || a.name || 'Unknown Patient';
+                var date = new Date(a.created_at).toLocaleDateString('en-IN', {
+                    day: 'numeric', month: 'short', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
+
+                var urgClass = a.urgency === 'High' ? 'badge-high' :
+                    a.urgency === 'Medium' ? 'badge-medium' : 'badge-low';
+
+                var initials = name.split(' ').slice(0, 2).map(function (w) { return w[0] || ''; }).join('').toUpperCase();
+                var avatarEmoji = a.urgency === 'High' ? '🚨' : '👤';
+
+                html +=
+                    '<div class="patient-card" style="animation-delay:' + (i * 0.05) + 's">' +
+                    '<div class="patient-avatar">' + avatarEmoji + '</div>' +
+                    '<div class="patient-info">' +
+                    '<div class="patient-name">' + esc(name) + '</div>' +
+                    '<div class="patient-disease">🔬 ' + esc(a.disease || 'Unknown') + '</div>' +
+                    '<div class="patient-date">📅 ' + date + '</div>' +
+                    '</div>' +
+                    '<div class="patient-badges">' +
+                    '<span class="badge ' + urgClass + '">' + esc(a.urgency) + '</span>' +
+                    '<span class="badge badge-conf">' + (a.confidence || 0) + '%</span>' +
+                    '</div>' +
+                    '</div>';
+            });
+            html += '</div>';
+            content.innerHTML = html;
+        }
+
+        function esc(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        async function logout() {
+            try { await fetch('/logout', { method: 'POST' }); } catch (e) { }
+            window.location.href = '/';
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

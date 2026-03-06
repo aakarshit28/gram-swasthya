@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0F172A" />
+    <title>GramSwasthya Mitra — Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link rel="manifest" href="/static/manifest.json" />
+    <style>
+        .login-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 440px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 40px 36px;
+            box-shadow: var(--shadow-lg);
+            animation: fadeUp 0.45s ease;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-logo .app-icon {
+            font-size: 2.8rem;
+            display: block;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 16px rgba(59, 130, 246, 0.5));
+        }
+
+        .login-logo h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .login-logo h1 span {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-logo p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.05rem;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 13px 16px 13px 42px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: border-color var(--transition), box-shadow var(--transition);
+            box-sizing: border-box;
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .form-input.error {
+            border-color: var(--danger);
+        }
+
+        /* Password toggle */
+        .pwd-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--text-muted);
+            transition: color 0.2s;
+            padding: 0;
+        }
+
+        .pwd-toggle:hover {
+            color: var(--primary);
+        }
+
+        /* Error banner */
+        .error-banner {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: var(--danger-bg);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            font-size: 0.875rem;
+            color: var(--danger);
+            margin-bottom: 18px;
+        }
+
+        .error-banner.show {
+            display: flex;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+            position: relative;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-login.loading {
+            color: transparent;
+        }
+
+        .btn-login.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 22px 0;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .footer-links {
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .footer-links a {
+            color: var(--primary-light);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .back-home {
+            display: block;
+            text-align: center;
+            margin-top: 18px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .back-home:hover {
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="login-logo">
+                <span class="app-icon">🏥</span>
+                <h1>Gram<span>Swasthya</span> Mitra</h1>
+                <p>Sign in to access your health history</p>
+            </div>
+
+            <div class="error-banner" id="errorBanner">
+                <span>⚠️</span>
+                <span id="errorMsg">Invalid credentials</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="loginPhone">📱 Phone Number</label>
+                <div class="input-wrap">
+                    <span class="input-icon">📞</span>
+                    <input type="tel" id="loginPhone" class="form-input" placeholder="Enter registered phone number"
+                        autocomplete="tel" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="loginPassword">🔒 Password</label>
+                <div class="input-wrap">
+                    <span class="input-icon">🔑</span>
+                    <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password"
+                        autocomplete="current-password" style="padding-right: 46px;" />
+                    <button class="pwd-toggle" type="button" onclick="togglePwd('loginPassword', this)"
+                        aria-label="Toggle password visibility">👁️</button>
+                </div>
+            </div>
+
+            <button class="btn-login" id="loginBtn" onclick="handleLogin()">Login →</button>
+
+            <div class="divider">or</div>
+
+            <div class="footer-links">
+                New user? <a href="/register_page">Create an account</a>
+            </div>
+
+            <a href="/" class="back-home">← Back to Welcome</a>
+        </div>
+    </div>
+
+    <script>
+        function togglePwd(inputId, btn) {
+            var inp = document.getElementById(inputId);
+            if (inp.type === 'password') {
+                inp.type = 'text';
+                btn.textContent = '🙈';
+            } else {
+                inp.type = 'password';
+                btn.textContent = '👁️';
+            }
+        }
+
+        function showError(msg) {
+            document.getElementById('errorMsg').textContent = msg;
+            document.getElementById('errorBanner').classList.add('show');
+        }
+
+        function hideError() {
+            document.getElementById('errorBanner').classList.remove('show');
+        }
+
+        async function handleLogin() {
+            var phone = document.getElementById('loginPhone').value.trim();
+            var password = document.getElementById('loginPassword').value;
+            var btn = document.getElementById('loginBtn');
+
+            hideError();
+
+            if (!phone) {
+                showError('Please enter your phone number.');
+                document.getElementById('loginPhone').focus();
+                return;
+            }
+            if (!password) {
+                showError('Please enter your password.');
+                document.getElementById('loginPassword').focus();
+                return;
+            }
+
+            btn.disabled = true;
+            btn.classList.add('loading');
+
+            try {
+                var resp = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: phone, password: password })
+                });
+                var data = await resp.json();
+
+                if (data.success) {
+                    window.location.href = data.redirect || '/home';
+                } else {
+                    showError(data.error || 'Login failed. Please try again.');
+                    btn.disabled = false;
+                    btn.classList.remove('loading');
+                }
+            } catch (err) {
+                showError('Connection error. Please try again.');
+                btn.disabled = false;
+                btn.classList.remove('loading');
+            }
+        }
+
+        // Allow Enter key to submit
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') handleLogin();
+        });
+
+        // If already logged in, redirect to correct page based on role
+        fetch('/get_user').then(function (r) { return r.json(); }).then(function (d) {
+            if (d.user_id) {
+                window.location.href = (d.role === 'asha') ? '/asha_dashboard' : '/home';
+            }
+        }).catch(function () { });
+    </script>
+</body>
+
+</html>

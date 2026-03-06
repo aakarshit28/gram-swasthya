@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0F172A" />
+  <title>Assessment History — GramSwasthya Mitra</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <style>
+    .history-page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Top nav bar */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .back-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .logout-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      background: var(--danger-bg);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--danger);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      transform: translateY(-1px);
+    }
+
+    /* Page header */
+    .page-header {
+      margin-bottom: 28px;
+    }
+
+    .page-header h2 {
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .page-header h2 span {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .page-header p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    /* Stats summary row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+
+    .stat-card:hover {
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    .stat-card .stat-val {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--primary);
+      display: block;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-card .stat-lbl {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* History list */
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .history-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      transition: all 0.2s;
+      animation: fadeUp 0.35s ease both;
+    }
+
+    .history-item:hover {
+      border-color: rgba(59, 130, 246, 0.25);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .history-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .history-disease {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-symptoms {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .history-badges {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .badge {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge-high {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .badge-medium {
+      background: var(--warning-bg);
+      color: var(--warning);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .badge-low {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .badge-conf {
+      background: var(--primary-ghost);
+      color: var(--primary-light);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    /* Empty & login-required states */
+    .state-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 60px 30px;
+      text-align: center;
+    }
+
+    .state-icon {
+      font-size: 3.5rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .state-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .state-text {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    .state-btn {
+      display: inline-block;
+      padding: 12px 28px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+    }
+
+    .state-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+    }
+
+    .state-btn-outline {
+      display: inline-block;
+      padding: 12px 28px;
+      background: transparent;
+      color: var(--text-secondary);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s;
+      margin-left: 12px;
+    }
+
+    .state-btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Loading skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-card) 50%, var(--bg-elevated) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: var(--radius-sm);
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    .skeleton-item {
+      height: 88px;
+      border-radius: var(--radius-lg);
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .stats-row {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .history-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .history-badges {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="history-page">
+    <!-- Top navigation bar -->
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <a href="/home" class="back-btn">← Back to Home</a>
+      </div>
+      <button class="logout-btn" onclick="logout()" id="logoutBtn">🚪 Logout</button>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <h2>📋 Your <span>Health History</span></h2>
+      <p id="userSubtitle">Loading your assessments…</p>
+    </div>
+
+    <!-- Stats summary -->
+    <div class="stats-row" id="statsRow" style="display:none;">
+      <div class="stat-card">
+        <span class="stat-val" id="statTotal">0</span>
+        <span class="stat-lbl">Total Checks</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-val" id="statHigh" style="color: var(--danger);">0</span>
+        <span class="stat-lbl">High Urgency</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-val" id="statAvgConf">—</span>
+        <span class="stat-lbl">Avg Confidence</span>
+      </div>
+    </div>
+
+    <!-- Content area -->
+    <div id="content">
+      <!-- Skeleton loaders -->
+      <div class="skeleton skeleton-item"></div>
+      <div class="skeleton skeleton-item"></div>
+      <div class="skeleton skeleton-item" style="opacity:0.6;"></div>
+    </div>
+  </div>
+
+  <script>
+    var currentUser = null;
+
+    async function init() {
+      try {
+        // Check if user is logged in
+        var userResp = await fetch('/get_user');
+        var userData = await userResp.json();
+
+        if (!userData.user_id) {
+          showLoginRequired();
+          return;
+        }
+
+        currentUser = userData;
+        document.getElementById('userSubtitle').textContent =
+          'Hello, ' + userData.name + ' — here are your past assessments.';
+
+        await loadHistory();
+      } catch (err) {
+        showError();
+      }
+    }
+
+    async function loadHistory() {
+      try {
+        var resp = await fetch('/history');
+        var data = await resp.json();
+
+        if (data.error) {
+          showError();
+          return;
+        }
+
+        var assessments = data.assessments || [];
+        renderHistory(assessments);
+        renderStats(assessments);
+      } catch (err) {
+        showError();
+      }
+    }
+
+    function renderStats(assessments) {
+      if (assessments.length === 0) return;
+
+      document.getElementById('statsRow').style.display = 'grid';
+      document.getElementById('statTotal').textContent = assessments.length;
+
+      var highCount = assessments.filter(function (a) { return a.urgency === 'High'; }).length;
+      document.getElementById('statHigh').textContent = highCount;
+
+      var avgConf = Math.round(
+        assessments.reduce(function (sum, a) { return sum + (a.confidence || 0); }, 0) / assessments.length
+      );
+      document.getElementById('statAvgConf').textContent = avgConf + '%';
+    }
+
+    function renderHistory(assessments) {
+      var content = document.getElementById('content');
+
+      if (assessments.length === 0) {
+        content.innerHTML = '<div class="state-box">' +
+          '<span class="state-icon">📋</span>' +
+          '<h3 class="state-title">No assessments yet</h3>' +
+          '<p class="state-text">Complete a symptom check on the home page to start building your health history.</p>' +
+          '<a href="/home" class="state-btn">Start Health Check</a>' +
+          '</div>';
+        return;
+      }
+
+      var html = '<div class="history-list">';
+      assessments.forEach(function (a, i) {
+        var date = new Date(a.created_at).toLocaleDateString('en-IN', {
+          day: 'numeric', month: 'short', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        });
+
+        var urgencyClass = a.urgency === 'High' ? 'badge-high' :
+          a.urgency === 'Medium' ? 'badge-medium' : 'badge-low';
+
+        var symptomsDisplay = (a.symptoms || '').replace(/,/g, ', ');
+
+        html += '<div class="history-item" style="animation-delay:' + (i * 0.06) + 's">' +
+          '<div class="history-main">' +
+          '<div class="history-disease">🔬 ' + escapeHtml(a.disease) + '</div>' +
+          '<div class="history-symptoms">Symptoms: ' + escapeHtml(symptomsDisplay) + '</div>' +
+          '<div class="history-date">📅 ' + date + '</div>' +
+          '</div>' +
+          '<div class="history-badges">' +
+          '<span class="badge ' + urgencyClass + '">' + escapeHtml(a.urgency) + ' Urgency</span>' +
+          '<span class="badge badge-conf">' + (a.confidence || 0) + '% Match</span>' +
+          '</div>' +
+          '</div>';
+      });
+      html += '</div>';
+      content.innerHTML = html;
+    }
+
+    function showLoginRequired() {
+      document.getElementById('logoutBtn').style.display = 'none';
+      document.getElementById('statsRow').style.display = 'none';
+      document.getElementById('userSubtitle').textContent = 'Sign in to view your health history.';
+      document.getElementById('content').innerHTML =
+        '<div class="state-box">' +
+        '<span class="state-icon">🔒</span>' +
+        '<h3 class="state-title">Login Required</h3>' +
+        '<p class="state-text">Please log in to see your past health assessments.</p>' +
+        '<a href="/login_page" class="state-btn">Login</a>' +
+        '<a href="/" class="state-btn-outline">Back to Welcome</a>' +
+        '</div>';
+    }
+
+    function showError() {
+      document.getElementById('userSubtitle').textContent = 'Could not load history.';
+      document.getElementById('content').innerHTML =
+        '<div class="state-box">' +
+        '<span class="state-icon">⚠️</span>' +
+        '<h3 class="state-title">Something went wrong</h3>' +
+        '<p class="state-text">Could not load your history. Please try again.</p>' +
+        '<a href="/history_page" class="state-btn">Retry</a>' +
+        '</div>';
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    async function logout() {
+      try {
+        await fetch('/logout', { method: 'POST' });
+      } catch (e) { }
+      window.location.href = '/';
+    }
+
+    // Start
+    init();
+  </script>
+</body>
+
+</html>
