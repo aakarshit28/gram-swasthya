@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0F172A" />
-    <title>GramSwasthya Mitra — Login</title>
+    <title>{{ _t('GramSwasthya Mitra — Login') }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
     <link rel="manifest" href="/static/manifest.json" />
     <style>
@@ -270,44 +270,45 @@
         <div class="login-card">
             <div class="login-logo">
                 <span class="app-icon">🏥</span>
-                <h1>Gram<span>Swasthya</span> Mitra</h1>
-                <p>Sign in to access your health history</p>
+                <h1>{{ _t('Gram') }}<span>{{ _t('Swasthya') }}</span> {{ _t('Mitra') }}</h1>
+                <p>{{ _t('Sign in to access your health history') }}</p>
             </div>
 
             <div class="error-banner" id="errorBanner">
                 <span>⚠️</span>
-                <span id="errorMsg">Invalid credentials</span>
+                <span id="errorMsg">{{ _t('Invalid credentials') }}</span>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="loginPhone">📱 Phone Number</label>
+                <label class="form-label" for="loginPhone">📱 {{ _t('Phone Number') }}</label>
                 <div class="input-wrap">
                     <span class="input-icon">📞</span>
-                    <input type="tel" id="loginPhone" class="form-input" placeholder="Enter registered phone number"
-                        autocomplete="tel" />
+                    <input type="tel" id="loginPhone" class="form-input"
+                        placeholder="{{ _t('Enter registered phone number') }}" autocomplete="tel" />
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="loginPassword">🔒 Password</label>
+                <label class="form-label" for="loginPassword">🔒 {{ _t('Password') }}</label>
                 <div class="input-wrap">
                     <span class="input-icon">🔑</span>
-                    <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password"
-                        autocomplete="current-password" style="padding-right: 46px;" />
+                    <input type="password" id="loginPassword" class="form-input"
+                        placeholder="{{ _t('Enter your password') }}" autocomplete="current-password"
+                        style="padding-right: 46px;" />
                     <button class="pwd-toggle" type="button" onclick="togglePwd('loginPassword', this)"
                         aria-label="Toggle password visibility">👁️</button>
                 </div>
             </div>
 
-            <button class="btn-login" id="loginBtn" onclick="handleLogin()">Login →</button>
+            <button class="btn-login" id="loginBtn" onclick="handleLogin()">{{ _t('Login →') }}</button>
 
-            <div class="divider">or</div>
+            <div class="divider">{{ _t('or') }}</div>
 
             <div class="footer-links">
-                New user? <a href="/register_page">Create an account</a>
+                {{ _t('New user?') }} <a href="/register_page">{{ _t('Create an account') }}</a>
             </div>
 
-            <a href="/" class="back-home">← Back to Welcome</a>
+            <a href="/" class="back-home">← {{ _t('Back to Welcome') }}</a>
         </div>
     </div>
 
@@ -340,12 +341,12 @@
             hideError();
 
             if (!phone) {
-                showError('Please enter your phone number.');
+                showError("{{ _t('Please enter your phone number.') }}");
                 document.getElementById('loginPhone').focus();
                 return;
             }
             if (!password) {
-                showError('Please enter your password.');
+                showError("{{ _t('Please enter your password.') }}");
                 document.getElementById('loginPassword').focus();
                 return;
             }
@@ -364,12 +365,12 @@
                 if (data.success) {
                     window.location.href = data.redirect || '/home';
                 } else {
-                    showError(data.error || 'Login failed. Please try again.');
+                    showError(data.error || "{{ _t('Login failed. Please try again.') }}");
                     btn.disabled = false;
                     btn.classList.remove('loading');
                 }
             } catch (err) {
-                showError('Connection error. Please try again.');
+                showError("{{ _t('Connection error. Please try again.') }}");
                 btn.disabled = false;
                 btn.classList.remove('loading');
             }

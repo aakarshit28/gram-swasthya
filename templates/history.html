@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0F172A" />
-  <title>Assessment History — GramSwasthya Mitra</title>
+  <title>{{ _t('Assessment History — GramSwasthya Mitra') }}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
   <style>
     .history-page {
@@ -363,30 +363,30 @@
     <!-- Top navigation bar -->
     <div class="top-bar">
       <div class="top-bar-left">
-        <a href="/home" class="back-btn">← Back to Home</a>
+        <a href="/home" class="back-btn">← {{ _t('Back to Home') }}</a>
       </div>
-      <button class="logout-btn" onclick="logout()" id="logoutBtn">🚪 Logout</button>
+      <button class="logout-btn" onclick="logout()" id="logoutBtn">🚪 {{ _t('Logout') }}</button>
     </div>
 
     <!-- Page Header -->
     <div class="page-header">
-      <h2>📋 Your <span>Health History</span></h2>
-      <p id="userSubtitle">Loading your assessments…</p>
+      <h2>📋 {{ _t('Your') }} <span>{{ _t('Health History') }}</span></h2>
+      <p id="userSubtitle">{{ _t('Loading your assessments…') }}</p>
     </div>
 
     <!-- Stats summary -->
     <div class="stats-row" id="statsRow" style="display:none;">
       <div class="stat-card">
         <span class="stat-val" id="statTotal">0</span>
-        <span class="stat-lbl">Total Checks</span>
+        <span class="stat-lbl">{{ _t('Total Checks') }}</span>
       </div>
       <div class="stat-card">
         <span class="stat-val" id="statHigh" style="color: var(--danger);">0</span>
-        <span class="stat-lbl">High Urgency</span>
+        <span class="stat-lbl">{{ _t('High Urgency') }}</span>
       </div>
       <div class="stat-card">
         <span class="stat-val" id="statAvgConf">—</span>
-        <span class="stat-lbl">Avg Confidence</span>
+        <span class="stat-lbl">{{ _t('Avg Confidence') }}</span>
       </div>
     </div>
 
@@ -415,7 +415,7 @@
 
         currentUser = userData;
         document.getElementById('userSubtitle').textContent =
-          'Hello, ' + userData.name + ' — here are your past assessments.';
+          "{{ _t('Hello, ') }}" + userData.name + "{{ _t(' — here are your past assessments.') }}";
 
         await loadHistory();
       } catch (err) {
@@ -462,9 +462,9 @@
       if (assessments.length === 0) {
         content.innerHTML = '<div class="state-box">' +
           '<span class="state-icon">📋</span>' +
-          '<h3 class="state-title">No assessments yet</h3>' +
-          '<p class="state-text">Complete a symptom check on the home page to start building your health history.</p>' +
-          '<a href="/home" class="state-btn">Start Health Check</a>' +
+          '<h3 class="state-title">' + "{{ _t('No assessments yet') }}" + '</h3>' +
+          '<p class="state-text">' + "{{ _t('Complete a symptom check on the home page to start building your health history.') }}" + '</p>' +
+          '<a href="/home" class="state-btn">' + "{{ _t('Start Health Check') }}" + '</a>' +
           '</div>';
         return;
       }
@@ -484,12 +484,12 @@
         html += '<div class="history-item" style="animation-delay:' + (i * 0.06) + 's">' +
           '<div class="history-main">' +
           '<div class="history-disease">🔬 ' + escapeHtml(a.disease) + '</div>' +
-          '<div class="history-symptoms">Symptoms: ' + escapeHtml(symptomsDisplay) + '</div>' +
+          '<div class="history-symptoms">' + "{{ _t('Symptoms: ') }}" + escapeHtml(symptomsDisplay) + '</div>' +
           '<div class="history-date">📅 ' + date + '</div>' +
           '</div>' +
           '<div class="history-badges">' +
-          '<span class="badge ' + urgencyClass + '">' + escapeHtml(a.urgency) + ' Urgency</span>' +
-          '<span class="badge badge-conf">' + (a.confidence || 0) + '% Match</span>' +
+          '<span class="badge ' + urgencyClass + '">' + escapeHtml(a.urgency) + ' ' + "{{ _t('Urgency') }}" + '</span>' +
+          '<span class="badge badge-conf">' + (a.confidence || 0) + '% ' + "{{ _t('Match') }}" + '</span>' +
           '</div>' +
           '</div>';
       });
@@ -500,25 +500,25 @@
     function showLoginRequired() {
       document.getElementById('logoutBtn').style.display = 'none';
       document.getElementById('statsRow').style.display = 'none';
-      document.getElementById('userSubtitle').textContent = 'Sign in to view your health history.';
+      document.getElementById('userSubtitle').textContent = "{{ _t('Sign in to view your health history.') }}";
       document.getElementById('content').innerHTML =
         '<div class="state-box">' +
         '<span class="state-icon">🔒</span>' +
-        '<h3 class="state-title">Login Required</h3>' +
-        '<p class="state-text">Please log in to see your past health assessments.</p>' +
-        '<a href="/login_page" class="state-btn">Login</a>' +
-        '<a href="/" class="state-btn-outline">Back to Welcome</a>' +
+        '<h3 class="state-title">' + "{{ _t('Login Required') }}" + '</h3>' +
+        '<p class="state-text">' + "{{ _t('Please log in to see your past health assessments.') }}" + '</p>' +
+        '<a href="/login_page" class="state-btn">' + "{{ _t('Login') }}" + '</a>' +
+        '<a href="/" class="state-btn-outline">' + "{{ _t('Back to Welcome') }}" + '</a>' +
         '</div>';
     }
 
     function showError() {
-      document.getElementById('userSubtitle').textContent = 'Could not load history.';
+      document.getElementById('userSubtitle').textContent = "{{ _t('Could not load history.') }}";
       document.getElementById('content').innerHTML =
         '<div class="state-box">' +
         '<span class="state-icon">⚠️</span>' +
-        '<h3 class="state-title">Something went wrong</h3>' +
-        '<p class="state-text">Could not load your history. Please try again.</p>' +
-        '<a href="/history_page" class="state-btn">Retry</a>' +
+        '<h3 class="state-title">' + "{{ _t('Something went wrong') }}" + '</h3>' +
+        '<p class="state-text">' + "{{ _t('Could not load your history. Please try again.') }}" + '</p>' +
+        '<a href="/history_page" class="state-btn">' + "{{ _t('Retry') }}" + '</a>' +
         '</div>';
     }
 

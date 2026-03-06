@@ -25,33 +25,33 @@
     <!-- User Greeting & Menu -->
     <div class="user-greeting" id="userGreeting">
       <span class="greeting-icon">👋</span>
-      <span class="greeting-text" id="greetingText">Welcome</span>
+      <span class="greeting-text" id="greetingText">{{ _t('Welcome') }}</span>
     </div>
 
     <!-- User Menu -->
     <div class="user-menu">
       <button class="user-menu-btn" id="userMenuBtn">
         <span>👤</span>
-        <span class="menu-label">Menu</span>
+        <span class="menu-label">{{ _t('Menu') }}</span>
       </button>
       <div class="user-dropdown">
         <div class="user-dropdown-item" onclick="viewHistory()">
-          <span>📋</span> View History
+          <span>📋</span> {{ _t('View History') }}
         </div>
         <div class="user-dropdown-item danger" onclick="logout()">
-          <span>🚪</span> Logout
+          <span>🚪</span> {{ _t('Logout') }}
         </div>
       </div>
     </div>
 
-    <p class="hero-badge"><span class="hero-badge-dot"></span>AI-Powered Rural Health</p>
-    <h1>Gram<span>Swasthya</span><br>Mitra</h1>
-    <p class="hero-subtitle">Select your symptoms and get instant AI health assessment in your language.</p>
+    <p class="hero-badge"><span class="hero-badge-dot"></span>{{ _t('AI-Powered Rural Health') }}</p>
+    <h1>{{ _t('Gram') }}<span>{{ _t('Swasthya') }}</span><br>{{ _t('Mitra') }}</h1>
+    <p class="hero-subtitle">{{ _t('Select your symptoms and get instant AI health assessment in your language.') }}</p>
     <div class="hero-stats">
-      <div class="hero-stat"><span class="stat-num">42</span><span class="stat-label">Diseases</span></div>
-      <div class="hero-stat"><span class="stat-num">{{ symptoms | length }}</span><span
-          class="stat-label">Symptoms</span></div>
-      <div class="hero-stat"><span class="stat-num">12</span><span class="stat-label">Languages</span></div>
+      <div class="hero-stat"><span class="stat-num">42</span><span class="stat-label">{{ _t('Diseases') }}</span></div>
+      <div class="hero-stat"><span class="stat-num">{{ symptoms | length }}</span><span class="stat-label">{{
+          _t('Symptoms') }}</span></div>
+      <div class="hero-stat"><span class="stat-num">12</span><span class="stat-label">{{ _t('Languages') }}</span></div>
     </div>
   </header>
 
@@ -61,11 +61,11 @@
     <section class="card">
       <div class="card-header">
         <div class="card-icon">🌐</div>
-        <span class="card-title">Language &amp; Accessibility</span>
+        <span class="card-title">{{ _t('Language &amp; Accessibility') }}</span>
       </div>
       <div class="accessibility-bar">
         <div class="field-group">
-          <span class="field-label">Select Language</span>
+          <span class="field-label">{{ _t('Select Language') }}</span>
           <select id="language">
             <option value="en">English</option>
             <option value="hi">हिन्दी — Hindi</option>
@@ -84,7 +84,7 @@
         <label class="elder-toggle" for="elderMode">
           <input type="checkbox" id="elderMode" />
           <span class="toggle-track"><span class="toggle-thumb"></span></span>
-          <span class="toggle-label">👵 Elder Mode</span>
+          <span class="toggle-label">👵 {{ _t('Elder Mode') }}</span>
         </label>
       </div>
     </section>
@@ -93,32 +93,32 @@
     <section class="card">
       <div class="card-header">
         <div class="card-icon">🩺</div>
-        <span class="card-title">Symptom Assessment</span>
+        <span class="card-title">{{ _t('Symptom Assessment') }}</span>
       </div>
-      <h2 id="symptomTitle">Select Your Symptoms</h2>
+      <h2 id="symptomTitle">{{ _t('Select Your Symptoms') }}</h2>
 
       <!-- Symptom Category Tabs -->
       <div class="symptom-categories" id="symptomCategories">
         <button class="category-tab active" data-category="all" onclick="filterCategory('all')">
-          All <span class="count" id="count-all">{{ symptoms | length }}</span>
+          {{ _t('All') }} <span class="count" id="count-all">{{ symptoms | length }}</span>
         </button>
         <button class="category-tab" data-category="skin" onclick="filterCategory('skin')">
-          🩹 Skin <span class="count" id="count-skin">0</span>
+          🩹 {{ _t('Skin') }} <span class="count" id="count-skin">0</span>
         </button>
         <button class="category-tab" data-category="respiratory" onclick="filterCategory('respiratory')">
-          🫁 Respiratory <span class="count" id="count-respiratory">0</span>
+          🫁 {{ _t('Respiratory') }} <span class="count" id="count-respiratory">0</span>
         </button>
         <button class="category-tab" data-category="fever" onclick="filterCategory('fever')">
-          🌡️ Fever <span class="count" id="count-fever">0</span>
+          🌡️ {{ _t('Fever') }} <span class="count" id="count-fever">0</span>
         </button>
         <button class="category-tab" data-category="digestive" onclick="filterCategory('digestive')">
-          🫃 Digestive <span class="count" id="count-digestive">0</span>
+          🫃 {{ _t('Digestive') }} <span class="count" id="count-digestive">0</span>
         </button>
         <button class="category-tab" data-category="pain" onclick="filterCategory('pain')">
-          🤕 Pain <span class="count" id="count-pain">0</span>
+          🤕 {{ _t('Pain') }} <span class="count" id="count-pain">0</span>
         </button>
         <button class="category-tab" data-category="general" onclick="filterCategory('general')">
-          💊 General <span class="count" id="count-general">0</span>
+          💊 {{ _t('General') }} <span class="count" id="count-general">0</span>
         </button>
       </div>
 
@@ -134,14 +134,14 @@
           <input type="checkbox" id="sym_{{ loop.index }}" value="{{ symptom }}" onchange="updateCount()" />
           <label class="chip-inner" for="sym_{{ loop.index }}">
             <span class="chip-dot"></span>
-            <span class="chip-txt" data-sym="{{ symptom }}">{{ symptom | replace('_', ' ') }}</span>
+            <span class="chip-txt" data-sym="{{ symptom }}">{{ _t(symptom | replace('_', ' ')) }}</span>
           </label>
         </div>
         {% endfor %}
       </div>
 
       <div class="count-bar">
-        <span class="selected-count" id="selectedCount">No symptoms selected</span>
+        <span class="selected-count" id="selectedCount">{{ _t('No symptoms selected') }}</span>
       </div>
 
       <!-- ASHA Worker: Patient Name Field (hidden for regular users) -->
@@ -150,8 +150,9 @@
           style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2); border-radius:var(--radius-sm); padding:14px 16px;">
           <label
             style="display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent-light); margin-bottom:8px;">&#127973;
-            ASHA Mode — Patient Name</label>
-          <input type="text" id="ashaPatientName" placeholder="Enter patient's full name (e.g. Sunita Devi)"
+            {{ _t('ASHA Mode — Patient Name') }}</label>
+          <input type="text" id="ashaPatientName"
+            placeholder="{{ _t('Enter patient\'s full name (e.g. Sunita Devi)') }}"
             style="width:100%; padding:10px 14px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:0.95rem; color:var(--text-primary); box-sizing:border-box;" />
         </div>
       </div>
@@ -252,7 +253,7 @@
       if (savedTheme === 'light') {
         document.body.classList.add('light-mode');
         document.getElementById('themeIcon').textContent = '☀️';
-        document.getElementById('themeLabel').textContent = 'Light';
+        document.getElementById('themeLabel').textContent = "{{ _t('Light') }}";
       }
     }
 
@@ -261,7 +262,7 @@
       const isLight = document.body.classList.toggle('light-mode');
       localStorage.setItem('gsm_theme', isLight ? 'light' : 'dark');
       document.getElementById('themeIcon').textContent = isLight ? '☀️' : '🌙';
-      document.getElementById('themeLabel').textContent = isLight ? 'Light' : 'Dark';
+      document.getElementById('themeLabel').textContent = isLight ? "{{ _t('Light') }}" : "{{ _t('Dark') }}";
     }
 
     /* ── USER MANAGEMENT ───────────────────────────────────── */
@@ -276,7 +277,7 @@
           currentUser = data;
           isAshaMode = (data.role === 'asha');
           var greeting = document.getElementById("greetingText");
-          if (greeting) greeting.textContent = "Welcome, " + data.name;
+          if (greeting) greeting.textContent = "{{ _t('Welcome, ') }}" + data.name;
           if (isAshaMode) {
             document.getElementById('ashaPatientGroup').style.display = '';
           }
@@ -314,24 +315,42 @@
     }
 
     /* ── TRANSLATIONS ───────────────────────────────────────── */
-    const T = {
-      en: { title: "Select Your Symptoms", btn: "Run Diagnosis", precautions: "Precautions", confidence: "Confidence", noSymptoms: "Please select at least one symptom.", analyzing: "Analyzing…", translating: "Translating…", result: "Diagnosis Result", low: "Low Urgency", medium: "Medium", high: "High Urgency", risk: "What To Do", top3: "Other Possibilities", severity: "Severity", reset: "New Assessment", readAloud: "🔊 Read Aloud", hospital: "🏥 Find Hospital", printResult: "🖨️ Print" },
-      hi: { title: "लक्षण चुनें", btn: "निदान करें", precautions: "सावधानियाँ", confidence: "विश्वास", noSymptoms: "लक्षण चुनें।", analyzing: "विश्लेषण…", translating: "अनुवाद…", result: "निदान", low: "कम", medium: "मध्यम", high: "उच्च", risk: "क्या करें", top3: "अन्य", severity: "गंभीरता", reset: "नया", readAloud: "🔊 पढ़ें", hospital: "🏥 अस्पताल", printResult: "🖨️ प्रिंट" }
+    const UI_TEXT = {
+      title: "{{ _t('Select Your Symptoms') }}",
+      btn: "{{ _t('Run Diagnosis') }}",
+      precautions: "{{ _t('Precautions') }}",
+      confidence: "{{ _t('Confidence') }}",
+      noSymptoms: "{{ _t('Please select at least one symptom.') }}",
+      analyzing: "{{ _t('Analyzing…') }}",
+      translating: "{{ _t('Translating…') }}",
+      result: "{{ _t('Diagnosis Result') }}",
+      low: "{{ _t('Low Urgency') }}",
+      medium: "{{ _t('Medium') }}",
+      high: "{{ _t('High Urgency') }}",
+      risk: "{{ _t('What To Do') }}",
+      top3: "{{ _t('Other Possibilities') }}",
+      severity: "{{ _t('Severity') }}",
+      reset: "{{ _t('New Assessment') }}",
+      readAloud: "{{ _t('🔊 Read Aloud') }}",
+      hospital: "{{ _t('🏥 Find Hospital') }}",
+      printResult: "{{ _t('🖨️ Print') }}"
     };
 
-    let lang = localStorage.getItem("gsm_lang") || "en", lastResult = null;
+    let lang = "{{ current_lang }}" || localStorage.getItem("gsm_lang") || "en", lastResult = null;
 
     document.addEventListener("DOMContentLoaded", function () {
-      var savedLang = localStorage.getItem("gsm_lang") || "en";
       var langSel = document.getElementById("language");
-      if (langSel) { langSel.value = savedLang; lang = savedLang; }
-      applyLang(lang);
-
-      langSel.addEventListener("change", function () {
-        lang = this.value;
-        localStorage.setItem("gsm_lang", lang);
-        applyLang(lang);
-      });
+      if (langSel) {
+        langSel.value = lang;
+        langSel.addEventListener("change", function () {
+          if (lang !== this.value) {
+            lang = this.value;
+            localStorage.setItem("gsm_lang", lang);
+            document.cookie = "gsm_lang=" + lang + "; path=/; max-age=31536000";
+            window.location.reload();
+          }
+        });
+      }
 
       document.getElementById("elderMode").addEventListener("change", function () {
         document.body.classList.toggle("elder-mode", this.checked);
@@ -348,23 +367,15 @@
       });
     });
 
-    function applyLang(l) {
-      var t = T[l] || T.en;
-      var title = document.getElementById("symptomTitle");
-      if (title) title.textContent = t.title;
-      var btn = document.getElementById("predictBtn");
-      if (btn && !btn.disabled) btn.textContent = t.btn;
-    }
-
     /* ── COUNTER ─────────────────────────────────────────────── */
     function updateCount() {
       var n = document.querySelectorAll('#symptomGrid input[type="checkbox"]:checked').length;
       var el = document.getElementById("selectedCount");
       if (!el) return;
-      var t = T[lang] || T.en;
+      var t = UI_TEXT;
       el.textContent = n === 0 ? (t.noSymptoms || "No symptoms selected")
-        : n === 1 ? "1 symptom selected"
-          : n + " symptoms selected";
+        : n === 1 ? "{{ _t('1 symptom selected') }}"
+          : n + " {{ _t('symptoms selected') }}";
       el.classList.toggle("has-selection", n > 0);
     }
 
@@ -412,7 +423,7 @@
 
     /* ── PREDICT ─────────────────────────────────────────────── */
     async function predict() {
-      var t = T[lang] || T.en;
+      var t = UI_TEXT;
       var checked = document.querySelectorAll('#symptomGrid input[type="checkbox"]:checked');
       var symptoms = Array.from(checked).map(function (cb) { return cb.value; });
 
@@ -451,14 +462,14 @@
         showToast("Could not connect to server. Please try again.", "error");
       } finally {
         btn.disabled = false;
-        btn.textContent = (T[lang] || T.en).btn;
+        btn.textContent = UI_TEXT.btn;
         btn.classList.remove("loading");
       }
     }
 
     /* ── RENDER RESULT ───────────────────────────────────────── */
     function renderResult(data) {
-      var t = T[lang] || T.en;
+      var t = UI_TEXT;
       var urgLower = (data.urgency || "low").toLowerCase();
       var urgLabel = t[urgLower] || data.urgency;
       var pct = data.confidence + "%";
@@ -468,12 +479,12 @@
       }).join("");
 
       var healthTips = {
-        low: { icon: '🥗', tip: 'Stay hydrated, eat light meals, and rest. Monitor symptoms.' },
-        medium: { icon: '💧', tip: 'Drink fluids, avoid exertion. See a doctor within 1-2 days.' },
-        high: { icon: '🚨', tip: 'Do not delay! Seek immediate medical attention.' }
+        low: { icon: '🥗', tip: "{{ _t('Stay hydrated, eat light meals, and rest. Monitor symptoms.') }}" },
+        medium: { icon: '💧', tip: "{{ _t('Drink fluids, avoid exertion. See a doctor within 1-2 days.') }}" },
+        high: { icon: '🚨', tip: "{{ _t('Do not delay! Seek immediate medical attention.') }}" }
       };
       var tip = healthTips[urgLower] || healthTips.low;
-      var tipHTML = '<div class="health-tip-box"><div class="health-tip-icon">' + tip.icon + '</div><div><div class="health-tip-title">Health Tip</div><div class="health-tip-text">' + tip.tip + '</div></div></div>';
+      var tipHTML = '<div class="health-tip-box"><div class="health-tip-icon">' + tip.icon + '</div><div><div class="health-tip-title">{{ _t("Health Tip") }}</div><div class="health-tip-text">' + tip.tip + '</div></div></div>';
 
       var el = document.getElementById("result");
       el.innerHTML =

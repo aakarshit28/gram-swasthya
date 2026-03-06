@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0F172A" />
-    <title>GramSwasthya Mitra — Register</title>
+    <title>{{ _t('GramSwasthya Mitra — Register') }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
     <meta name="description"
         content="Register a new account on GramSwasthya Mitra for AI-powered rural health guidance." />
@@ -149,13 +149,13 @@
 
 <body>
     <header class="hero" style="padding: 40px 20px;">
-        <p class="hero-badge"><span class="hero-badge-dot"></span>AI-Powered Rural Health</p>
-        <h1>Create <span>Account</span></h1>
-        <p class="hero-subtitle">Register to save health assessments and view your history.</p>
+        <p class="hero-badge"><span class="hero-badge-dot"></span>{{ _t('AI-Powered Rural Health') }}</p>
+        <h1>{{ _t('Create') }} <span>{{ _t('Account') }}</span></h1>
+        <p class="hero-subtitle">{{ _t('Register to save health assessments and view your history.') }}</p>
     </header>
 
     <div class="page-content">
-        <a href="/" class="back-link">← Back to Welcome</a>
+        <a href="/" class="back-link">← {{ _t('Back to Welcome') }}</a>
 
         <div class="card register-container">
             <div class="error-banner" id="errorBanner">
@@ -164,85 +164,90 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Full Name *</label>
-                <input type="text" id="userName" class="form-input" placeholder="Enter your full name" required />
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Age</label>
-                <input type="number" id="userAge" class="form-input" placeholder="Enter age" min="1" max="150" />
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Gender</label>
-                <select id="userGender" class="form-select">
-                    <option value="">Select gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Phone Number *</label>
-                <input type="tel" id="userPhone" class="form-input" placeholder="Enter phone number (used for login)"
+                <label class="form-label">{{ _t('Full Name *') }}</label>
+                <input type="text" id="userName" class="form-input" placeholder="{{ _t('Enter your full name') }}"
                     required />
             </div>
 
             <div class="form-group">
-                <label class="form-label">Address / Village</label>
-                <input type="text" id="userAddress" class="form-input" placeholder="Enter village/town name" />
+                <label class="form-label">{{ _t('Age') }}</label>
+                <input type="number" id="userAge" class="form-input" placeholder="{{ _t('Enter age') }}" min="1"
+                    max="150" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">{{ _t('Gender') }}</label>
+                <select id="userGender" class="form-select">
+                    <option value="">{{ _t('Select gender') }}</option>
+                    <option value="Male">{{ _t('Male') }}</option>
+                    <option value="Female">{{ _t('Female') }}</option>
+                    <option value="Other">{{ _t('Other') }}</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">{{ _t('Phone Number *') }}</label>
+                <input type="tel" id="userPhone" class="form-input"
+                    placeholder="{{ _t('Enter phone number (used for login)') }}" required />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">{{ _t('Address / Village') }}</label>
+                <input type="text" id="userAddress" class="form-input"
+                    placeholder="{{ _t('Enter village/town name') }}" />
             </div>
 
             <!-- Role Selector -->
             <div class="form-group">
-                <label class="form-label">I am registering as</label>
+                <label class="form-label">{{ _t('I am registering as') }}</label>
                 <div style="display:flex; gap:12px; flex-wrap:wrap;">
                     <label style="flex:1; cursor:pointer;">
                         <input type="radio" name="userRole" value="patient" id="rolePatient" checked
                             style="display:none;" onchange="onRoleChange()" />
                         <div class="role-option" id="rolePatientBox"
                             style="padding:12px 16px; border:2px solid var(--primary); background:var(--primary-ghost); border-radius:var(--radius-sm); text-align:center; font-weight:700; color:var(--primary); font-size:0.88rem; transition:all 0.2s;">
-                            👤 Patient</div>
+                            👤 {{ _t('Patient') }}</div>
                     </label>
                     <label style="flex:1; cursor:pointer;">
                         <input type="radio" name="userRole" value="asha" id="roleAsha" style="display:none;"
                             onchange="onRoleChange()" />
                         <div class="role-option" id="roleAshaBox"
                             style="padding:12px 16px; border:1px solid var(--border); background:var(--bg-elevated); border-radius:var(--radius-sm); text-align:center; font-weight:600; color:var(--text-secondary); font-size:0.88rem; transition:all 0.2s;">
-                            🏥 ASHA Worker</div>
+                            🏥 {{ _t('ASHA Worker') }}</div>
                     </label>
                 </div>
             </div>
 
             <div class="form-group" id="ashaIdGroup" style="display:none;">
-                <label class="form-label">ASHA Worker ID</label>
-                <input type="text" id="ashaId" class="form-input" placeholder="Enter your ASHA ID (from govt. card)" />
+                <label class="form-label">{{ _t('ASHA Worker ID') }}</label>
+                <input type="text" id="ashaId" class="form-input"
+                    placeholder="{{ _t('Enter your ASHA ID (from govt. card)') }}" />
             </div>
 
             <div class="form-group">
-                <label class="form-label">Password *</label>
+                <label class="form-label">{{ _t('Password *') }}</label>
                 <div class="input-wrap">
                     <input type="password" id="userPassword" class="form-input"
-                        placeholder="Create a password (min 4 chars)" style="padding-right:46px" />
+                        placeholder="{{ _t('Create a password (min 4 chars)') }}" style="padding-right:46px" />
                     <button class="pwd-toggle" type="button" onclick="togglePwd('userPassword', this)">👁️</button>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="form-label">Confirm Password *</label>
+                <label class="form-label">{{ _t('Confirm Password *') }}</label>
                 <div class="input-wrap">
                     <input type="password" id="userPasswordConfirm" class="form-input"
-                        placeholder="Re-enter your password" style="padding-right:46px" />
+                        placeholder="{{ _t('Re-enter your password') }}" style="padding-right:46px" />
                     <button class="pwd-toggle" type="button"
                         onclick="togglePwd('userPasswordConfirm', this)">👁️</button>
                 </div>
             </div>
 
-            <button class="btn-submit" id="registerBtn" onclick="handleRegister()">Register &amp; Continue →</button>
+            <button class="btn-submit" id="registerBtn" onclick="handleRegister()">{{ _t('Register &amp; Continue →')
+                }}</button>
 
             <div class="login-link">
-                Already registered? <a href="/login_page">Login here</a>
+                {{ _t('Already registered?') }} <a href="/login_page">{{ _t('Login here') }}</a>
             </div>
         </div>
     </div>
@@ -288,33 +293,33 @@
             hideError();
 
             if (!name) {
-                showError('Please enter your full name.');
+                showError("{{ _t('Please enter your full name.') }}");
                 document.getElementById('userName').focus();
                 return;
             }
             if (!phone) {
-                showError('Phone number is required for login.');
+                showError("{{ _t('Phone number is required for login.') }}");
                 document.getElementById('userPhone').focus();
                 return;
             }
             if (!password) {
-                showError('Please create a password.');
+                showError("{{ _t('Please create a password.') }}");
                 document.getElementById('userPassword').focus();
                 return;
             }
             if (password.length < 4) {
-                showError('Password must be at least 4 characters.');
+                showError("{{ _t('Password must be at least 4 characters.') }}");
                 document.getElementById('userPassword').focus();
                 return;
             }
             if (password !== confirm) {
-                showError('Passwords do not match. Please re-enter.');
+                showError("{{ _t('Passwords do not match. Please re-enter.') }}");
                 document.getElementById('userPasswordConfirm').focus();
                 return;
             }
 
             btn.disabled = true;
-            btn.textContent = 'Registering...';
+            btn.textContent = "{{ _t('Registering...') }}";
 
             var role = document.getElementById('roleAsha').checked ? 'asha' : 'patient';
             var ashaId = role === 'asha' ? document.getElementById('ashaId').value.trim() : '';
@@ -340,15 +345,15 @@
                 if (data.success) {
                     window.location.href = data.redirect || '/home';
                 } else {
-                    showError(data.error || 'Registration failed. Please try again.');
+                    showError(data.error || "{{ _t('Registration failed. Please try again.') }}");
                     btn.disabled = false;
-                    btn.textContent = 'Register & Continue →';
+                    btn.textContent = "{{ _t('Register & Continue →') }}";
                 }
             } catch (err) {
                 console.error(err);
-                showError('Connection error. Please try again.');
+                showError("{{ _t('Connection error. Please try again.') }}");
                 btn.disabled = false;
-                btn.textContent = 'Register & Continue →';
+                btn.textContent = "{{ _t('Register & Continue →') }}";
             }
         }
     </script>

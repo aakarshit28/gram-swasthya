@@ -111,21 +111,60 @@ LANG_CODE_MAP = {
     "ur": "ur",
 }
 
+TRANSLATION_CACHE_FILE = os.path.join(BASE_DIR, "translation_cache.json")
+translation_cache = {}
+
+if os.path.exists(TRANSLATION_CACHE_FILE):
+    try:
+        with open(TRANSLATION_CACHE_FILE, "r", encoding="utf-8") as f:
+            translation_cache = json.load(f)
+    except Exception:
+        translation_cache = {}
+
+def save_translation_cache():
+    try:
+        with open(TRANSLATION_CACHE_FILE, "w", encoding="utf-8") as f:
+            json.dump(translation_cache, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"Error saving cache: {e}")
+
 def translate_text(text, target_lang):
-    """Translate text to target language using deep-translator."""
+    """Translate text to target language using deep-translator and local cache."""
     if not text or target_lang == "en":
         return text
+        
+    text_str = str(text).strip()
+    if not text_str:
+        return text
+
+    if target_lang not in translation_cache:
+        translation_cache[target_lang] = {}
+
+    if text_str in translation_cache[target_lang]:
+        return translation_cache[target_lang][text_str]
+
     try:
         from deep_translator import GoogleTranslator
         lang_code = LANG_CODE_MAP.get(target_lang, "en")
         if lang_code == "en":
             return text
         translator = GoogleTranslator(source="en", target=lang_code)
-        result = translator.translate(text)
-        return result if result else text
+        result = translator.translate(text_str)
+        if result:
+            translation_cache[target_lang][text_str] = result
+            save_translation_cache()
+            return result
+        return text
     except Exception as e:
         print(f"Translation error: {e}")
         return text
+
+@app.context_processor
+def inject_translations():
+    lang = request.cookies.get("gsm_lang", "en")
+    def _t(text):
+        return translate_text(text, lang)
+    return dict(_t=_t, current_lang=lang)
 
 def get_urgency(disease, symptoms):
     d = disease.strip().lower()
@@ -262,18 +301,8 @@ def translate_batch():
         return jsonify(data)
 
     try:
-        from deep_translator import GoogleTranslator
-        lang_code = LANG_CODE_MAP.get(lang, "en")
-        translator = GoogleTranslator(source="en", target=lang_code)
-
         def tx(text):
-            if not text:
-                return text
-            try:
-                r = translator.translate(str(text))
-                return r if r else text
-            except:
-                return text
+            return translate_text(text, lang)
 
         translated = {
             "disease":     tx(data.get("disease", "")),

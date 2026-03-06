@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0F172A" />
-  <title>GramSwasthya Mitra — Welcome</title>
+  <title>{{ _t('GramSwasthya Mitra — Welcome') }}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
   <link rel="manifest" href="/static/manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -139,9 +139,10 @@
 <body>
   <div class="welcome-container">
     <header class="hero" style="background: none; padding: 0;">
-      <p class="hero-badge"><span class="hero-badge-dot"></span>AI for Bharat</p>
-      <h1>Gram<span>Swasthya</span> Mitra</h1>
-      <p class="hero-subtitle">AI-powered health guidance for every village. Select your language and continue.</p>
+      <p class="hero-badge"><span class="hero-badge-dot"></span>{{ _t('AI for Bharat') }}</p>
+      <h1>{{ _t('Gram') }}<span>{{ _t('Swasthya') }}</span> {{ _t('Mitra') }}</h1>
+      <p class="hero-subtitle">{{ _t('AI-powered health guidance for every village. Select your language and continue.')
+        }}</p>
     </header>
 
     <div class="lang-section card">
@@ -199,29 +200,30 @@
     </div>
 
     <div class="action-buttons">
-      <a href="/register_page" class="btn-primary">Register Now</a>
+      <a href="/register_page" class="btn-primary">{{ _t('Register Now') }}</a>
       <a href="/login_page" class="btn-secondary"
-        style="border-color: rgba(59,130,246,0.4); color: var(--primary-light);">Login</a>
-      <a href="/home" class="btn-secondary" onclick="handleGuest(event)">Continue as Guest</a>
+        style="border-color: rgba(59,130,246,0.4); color: var(--primary-light);">{{ _t('Login') }}</a>
+      <a href="/home" class="btn-secondary" onclick="handleGuest(event)">{{ _t('Continue as Guest') }}</a>
     </div>
 
     <div style="text-align:center; margin-top:20px;">
       <a href="/login_page"
         style="font-size:0.82rem; color:var(--accent-light); text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border:1px solid rgba(16,185,129,0.25); border-radius:50px; transition:all 0.2s;"
-        onmouseover="this.style.background='rgba(16,185,129,0.08)'" onmouseout="this.style.background=''">&#127973; ASHA
-        Worker? Login here</a>
+        onmouseover="this.style.background='rgba(16,185,129,0.08)'" onmouseout="this.style.background=''">&#127973; {{
+        _t('ASHA Worker? Login here') }}</a>
     </div>
   </div>
 
   <script>
-    var selectedLang = localStorage.getItem("gsm_lang") || "en";
+    var selectedLang = "{{ current_lang }}" || localStorage.getItem("gsm_lang") || "en";
 
     function selectLang(lang) {
-      selectedLang = lang;
-      localStorage.setItem("gsm_lang", lang);
-      document.querySelectorAll(".lang-btn").forEach(function (btn) {
-        btn.classList.toggle("selected", btn.dataset.lang === lang);
-      });
+      if (selectedLang !== lang) {
+        selectedLang = lang;
+        localStorage.setItem("gsm_lang", lang);
+        document.cookie = "gsm_lang=" + lang + "; path=/; max-age=31536000";
+        window.location.reload();
+      }
     }
 
     function handleGuest(e) {

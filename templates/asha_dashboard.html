@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0F172A" />
     <link rel="manifest" href="/static/manifest.json" />
-    <title>ASHA Worker Dashboard — GramSwasthya Mitra</title>
+    <title>{{ _t('ASHA Worker Dashboard — GramSwasthya Mitra') }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
     <style>
         .dashboard-page {
@@ -384,43 +384,43 @@
         <div class="top-bar">
             <div class="asha-badge">
                 <span class="asha-badge-dot"></span>
-                ASHA Worker Dashboard
+                {{ _t('ASHA Worker Dashboard') }}
             </div>
             <div class="top-right">
-                <a href="/home" class="btn-assess">🩺 New Patient Assessment</a>
-                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+                <a href="/home" class="btn-assess">🩺 {{ _t('New Patient Assessment') }}</a>
+                <button class="btn-logout" onclick="logout()">🚪 {{ _t('Logout') }}</button>
             </div>
         </div>
 
         <!-- Welcome -->
         <div class="welcome-section">
-            <h1 id="dashTitle">Welcome, <span id="ashaName">ASHA Worker</span></h1>
-            <p id="dashSubtitle">Loading your patient assessments…</p>
+            <h1 id="dashTitle">{{ _t('Welcome') }}, <span id="ashaName">{{ _t('ASHA Worker') }}</span></h1>
+            <p id="dashSubtitle">{{ _t('Loading your patient assessments…') }}</p>
         </div>
 
         <!-- Stats -->
         <div class="stats-grid" id="statsGrid">
             <div class="stat-card">
                 <span class="val val-blue" id="statTotal">—</span>
-                <span class="lbl">Total Patients</span>
+                <span class="lbl">{{ _t('Total Patients') }}</span>
             </div>
             <div class="stat-card">
                 <span class="val val-green" id="statToday">—</span>
-                <span class="lbl">Assessed Today</span>
+                <span class="lbl">{{ _t('Assessed Today') }}</span>
             </div>
             <div class="stat-card">
                 <span class="val val-red" id="statHigh">—</span>
-                <span class="lbl">High Urgency</span>
+                <span class="lbl">{{ _t('High Urgency') }}</span>
             </div>
             <div class="stat-card" style="font-size:0.9rem; padding: 14px;">
                 <span class="val val-warn" id="statTopDisease" style="font-size:1.1rem; word-break:break-word;">—</span>
-                <span class="lbl">Most Common Condition</span>
+                <span class="lbl">{{ _t('Most Common Condition') }}</span>
             </div>
         </div>
 
         <!-- Patient list -->
         <div class="section-header">
-            <span class="section-title">👥 Patient Assessment History</span>
+            <span class="section-title">👥 {{ _t('Patient Assessment History') }}</span>
             <span class="section-sub" id="listCount"></span>
         </div>
 
@@ -466,11 +466,11 @@
                 document.getElementById('statTopDisease').textContent = stats.top_disease || '—';
 
                 if (!stats.total) {
-                    document.getElementById('dashSubtitle').textContent = 'No patient assessments yet. Click "New Patient Assessment" to start.';
+                    document.getElementById('dashSubtitle').textContent = "{{ _t('No patient assessments yet. Click \\'New Patient Assessment\\' to start.') }}";
                 } else {
                     document.getElementById('dashSubtitle').textContent =
-                        'You have assessed ' + stats.total + ' patient' + (stats.total !== 1 ? 's' : '') + ' so far.';
-                    document.getElementById('listCount').textContent = stats.total + ' records';
+                        "{{ _t('You have assessed ') }}" + stats.total + "{{ _t(' patient(s) so far.') }}";
+                    document.getElementById('listCount').textContent = stats.total + " {{ _t('records') }}";
                 }
 
                 renderPatients(data.assessments || []);
@@ -486,9 +486,9 @@
                 content.innerHTML =
                     '<div class="empty-state">' +
                     '<span class="empty-icon">👥</span>' +
-                    '<h3 class="empty-title">No patients yet</h3>' +
-                    '<p class="empty-text">When you assess patients, they\'ll appear here for your records.</p>' +
-                    '<a href="/home" class="btn-assess" style="display:inline-flex;">🩺 Start First Assessment</a>' +
+                    '<h3 class="empty-title">' + "{{ _t('No patients yet') }}" + '</h3>' +
+                    '<p class="empty-text">' + "{{ _t('When you assess patients, they\\'ll appear here for your records.') }}" + '</p>' +
+                    '<a href="/home" class="btn-assess" style="display:inline-flex;">🩺 ' + "{{ _t('Start First Assessment') }}" + '</a>' +
                     '</div>';
                 return;
             }
