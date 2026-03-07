@@ -1,0 +1,7 @@
+General Health and Common Ailment Guidance
+- Common Cold: Usually caused by a viral infection. Antibiotics are NOT effective against viruses. Rest, hydration, and over-the-counter paracetamol/antihistamines can relieve symptoms. Consult a doctor if symptoms persist over 7-10 days.
+- Typhoid Fever: Requires prescription antibiotics like Ciprofloxacin (available cheaply via Jan Aushadhi). Boiling drinking water and avoiding street food is essential during recovery. High calorie and high protein diet is recommended.
+- Malaria: A life-threatening disease spread by mosquitoes. Chloroquine is often used, but treatment varies by region and severity. Immediate blood testing at a PHC is required if a person experiences fever, chills, and sweating.
+- Tuberculosis (TB): Characterized by persistent cough for more than 2-3 weeks, weight loss, night sweats. Sputum test is required. DOTS therapy provides complete treatment for FREE at all government health centers in India. Do NOT stop TB medication early.
+- Diabetes: Managing blood sugar requires a balanced diet low in simple carbohydrates. Metformin is commonly prescribed. Regular monitoring using a glucometer is essential to prevent complications.
+- Hypertension: High blood pressure often has no symptoms. Reducing salt intake, exercising, and taking prescribed medication (like Amlodipine) consistently is key to preventing heart attacks and strokes.

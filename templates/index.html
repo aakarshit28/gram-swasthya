@@ -152,7 +152,7 @@
             style="display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent-light); margin-bottom:8px;">&#127973;
             {{ _t('ASHA Mode — Patient Name') }}</label>
           <input type="text" id="ashaPatientName"
-            placeholder="{{ _t('Enter patient\'s full name (e.g. Sunita Devi)') }}"
+            placeholder="{{ _t('Enter patient full name e.g. Sunita Devi') }}"
             style="width:100%; padding:10px 14px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:0.95rem; color:var(--text-primary); box-sizing:border-box;" />
         </div>
       </div>
@@ -167,9 +167,33 @@
     <section id="ruralPanel" class="card hidden" style="margin-top:0;">
       <div class="card-header">
         <div class="card-icon">&#127968;</div>
-        <span class="card-title">Rural Health Resources</span>
+        <span class="card-title">{{ _t('Rural Health Resources') }}</span>
       </div>
       <div id="ruralContent"></div>
+    </section>
+
+    <!-- RAG AI Health Assistant panel -->
+    <section id="assistantPanel" class="card hidden" style="margin-top:0;">
+      <div class="card-header">
+        <div class="card-icon">🤖</div>
+        <span class="card-title">{{ _t('AI Health Assistant') }}</span>
+      </div>
+      <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px;">
+        {{ _t('Ask a follow-up question based on your results. Our AI uses verified Govt. health guidelines.') }}
+      </div>
+
+      <div id="assistantChatLog"
+        style="display:none; flex-direction: column; gap: 10px; margin-bottom: 15px; padding: 12px; background: rgba(0,0,0,0.1); border-radius: var(--radius-sm); font-size: 0.9rem;">
+        <!-- Chat bubbles will go here -->
+      </div>
+
+      <div class="search-wrap" style="display:flex; gap: 10px; margin-top: 5px;">
+        <input type="text" id="assistantInput" placeholder="{{ _t('Example: Can I eat rice if I have Typhoid?') }}"
+          autocomplete="off" style="flex: 1;" />
+        <button id="assistantBtn" onclick="askAssistant()"
+          style="padding: 0 20px; border-radius: 50px; border: none; background: var(--primary); color: white; cursor: pointer; font-weight: 600;">{{
+          _t('Ask') }}</button>
+      </div>
     </section>
 
     <!-- Emergency -->
@@ -417,6 +441,11 @@
       document.getElementById("selectedCount").classList.remove("has-selection");
       var ruralPanel = document.getElementById("ruralPanel");
       if (ruralPanel) ruralPanel.classList.add("hidden");
+      var assistantPanel = document.getElementById("assistantPanel");
+      if (assistantPanel) assistantPanel.classList.add("hidden");
+      document.getElementById("assistantChatLog").style.display = "none";
+      document.getElementById("assistantChatLog").innerHTML = "";
+      document.getElementById("assistantInput").value = "";
       lastResult = null;
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -457,6 +486,7 @@
         lastResult = data;
         renderResult(data);
         loadRuralPanel(data.disease);
+        document.getElementById('assistantPanel').classList.remove('hidden');
       } catch (err) {
         console.error(err);
         showToast("Could not connect to server. Please try again.", "error");
@@ -590,6 +620,58 @@
         if (btn) btn.classList.remove("speaking");
       };
       window.speechSynthesis.speak(utterance);
+    }
+
+    /* ── Health Assistant RAG ────────────────────────────────*/
+    async function askAssistant() {
+      var input = document.getElementById("assistantInput");
+      var query = input.value.trim();
+      if (!query) return;
+
+      var log = document.getElementById("assistantChatLog");
+      var btn = document.getElementById("assistantBtn");
+
+      log.style.display = "flex";
+
+      // Add User Message
+      log.innerHTML += '<div style="align-self: flex-end; background: var(--border); color: var(--text-primary); padding: 8px 12px; border-radius: 12px 12px 0 12px; max-width: 85%;">' + query + '</div>';
+      input.value = "";
+
+      // Loading State
+      var loadingId = "loader_" + Date.now();
+      log.innerHTML += '<div id="' + loadingId + '" style="align-self: flex-start; background: rgba(59,130,246,0.1); color: var(--primary-light); border: 1px solid rgba(59,130,246,0.2); padding: 8px 12px; border-radius: 12px 12px 12px 0; max-width: 85%;">{{ _t("Thinking...") }}</div>';
+
+      btn.disabled = true;
+      btn.textContent = "...";
+
+      // Scroll to bottom of chat
+      var panel = document.getElementById("assistantPanel");
+      panel.scrollIntoView({ behavior: 'smooth', block: 'end' });
+
+      try {
+        var res = await fetch("/ask_assistant", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: query, lang: lang })
+        });
+
+        var data = await res.json();
+        document.getElementById(loadingId).remove();
+
+        if (data.error) throw new Error(data.error);
+
+        // Add Assistant Message
+        var replyPrefix = data.context_used ? '<span style="font-size:0.75rem; color:var(--success); display:block; margin-bottom:4px; font-weight:600;">✓ Grounded in Govt. Guidelines</span>' : '';
+        log.innerHTML += '<div style="align-self: flex-start; background: rgba(59,130,246,0.1); color: var(--primary-light); border: 1px solid rgba(59,130,246,0.2); padding: 8px 12px; border-radius: 12px 12px 12px 0; max-width: 85%; line-height:1.4;">' + replyPrefix + data.response + '</div>';
+
+      } catch (err) {
+        document.getElementById(loadingId).remove();
+        log.innerHTML += '<div style="align-self: flex-start; background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); padding: 8px 12px; border-radius: 12px 12px 12px 0; max-width: 85%;">{{ _t("Sorry, the assistant is currently unavailable.") }}</div>';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "{{ _t('Ask') }}";
+        panel.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }
     }
 
     function showToast(msg, type) {

@@ -1,0 +1,13 @@
+Pradhan Mantri Jan Arogya Yojana (PM-JAY) Scheme Information
+PM-JAY is the world’s largest health insurance/ assurance scheme fully financed by the government.
+It provides a cover of Rs. 5 lakhs per family per year for secondary and tertiary care hospitalization across public and private empaneled hospitals in India.
+PM-JAY covers pre-existing diseases from day one of coverage.
+Services included during hospitalization:
+- Medical examination, treatment, and consultation
+- Pre-hospitalization expenses (up to 3 days)
+- Post-hospitalization follow-up care (up to 15 days)
+- Diagnostic procedures and lab services
+- Medical implant services (where necessary)
+- Food services, accommodation, and ICU services.
+To verify eligibility, users can visit the nearest Common Service Centre (CSC) or check online at the official PM-JAY website.
+Many generic medicines for diseases like Malaria, Diabetes, Hypertension, and Tuberculosis are available for free at government hospitals under this scheme.

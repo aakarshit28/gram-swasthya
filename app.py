@@ -121,12 +121,81 @@ if os.path.exists(TRANSLATION_CACHE_FILE):
     except Exception:
         translation_cache = {}
 
+import threading
+cache_lock = threading.Lock()
+
 def save_translation_cache():
+    with cache_lock:
+        try:
+            with open(TRANSLATION_CACHE_FILE, "w", encoding="utf-8") as f:
+                json.dump(translation_cache, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"Error saving cache: {e}")
+
+# ============================================================
+# RAG SYSTEM INITIALIZATION (Knowledge Base + Titan Embeddings)
+# ============================================================
+KNOWLEDGE_BASE_DOCS = []
+KNOWLEDGE_BASE_EMBEDDINGS = []
+
+def get_embedding(text):
+    """Get embedding from Amazon Titan Text V2 via Bedrock"""
+    import boto3
     try:
-        with open(TRANSLATION_CACHE_FILE, "w", encoding="utf-8") as f:
-            json.dump(translation_cache, f, ensure_ascii=False, indent=2)
+        bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
+        body = json.dumps({
+            "inputText": text,
+            "dimensions": 512,
+            "normalize": True
+        })
+        response = bedrock.invoke_model(
+            body=body,
+            modelId="amazon.titan-embed-text-v2:0",
+            accept="application/json",
+            contentType="application/json"
+        )
+        response_body = json.loads(response.get('body').read())
+        return response_body.get('embedding')
     except Exception as e:
-        print(f"Error saving cache: {e}")
+        print(f"Embedding error: {e}")
+        return None
+
+def init_rag_system():
+    global KNOWLEDGE_BASE_DOCS, KNOWLEDGE_BASE_EMBEDDINGS
+    print("Initializing RAG Knowledge Base...")
+    kb_dir = os.path.join(BASE_DIR, "knowledge_base")
+    
+    if not os.path.exists(kb_dir):
+        print("Knowledge base directory not found. RAG will fallback to general LLM knowledge.")
+        return
+        
+    for filename in os.listdir(kb_dir):
+        if filename.endswith(".txt"):
+            filepath = os.path.join(kb_dir, filename)
+            try:
+                with open(filepath, "r", encoding="utf-8") as f:
+                    content = f.read().strip()
+                    if content:
+                        # Split into smaller chunks (simple paragraph split)
+                        chunks = content.split('\n\n')
+                        for chunk in chunks:
+                            chunk = chunk.strip()
+                            if len(chunk) > 20:
+                                emb = get_embedding(chunk)
+                                if emb:
+                                    KNOWLEDGE_BASE_DOCS.append(chunk)
+                                    KNOWLEDGE_BASE_EMBEDDINGS.append(emb)
+            except Exception as e:
+                print(f"Error reading KB file {filename}: {e}")
+                
+    print(f"RAG Initialized: {len(KNOWLEDGE_BASE_DOCS)} document chunks indexed.")
+
+# Try to initialize RAG in the background or immediately
+try:
+    import threading
+    threading.Thread(target=init_rag_system, daemon=True).start()
+except Exception as e:
+    print(f"Could not start RAG thread: {e}")
 
 def translate_text(text, target_lang):
     """Translate text to target language using deep-translator and local cache."""
@@ -144,19 +213,51 @@ def translate_text(text, target_lang):
         return translation_cache[target_lang][text_str]
 
     try:
-        from deep_translator import GoogleTranslator
-        lang_code = LANG_CODE_MAP.get(target_lang, "en")
-        if lang_code == "en":
-            return text
-        translator = GoogleTranslator(source="en", target=lang_code)
-        result = translator.translate(text_str)
-        if result:
-            translation_cache[target_lang][text_str] = result
+        import boto3
+        import json
+        
+        # Initialize Bedrock client
+        # Requires AWS credentials to be configured in the environment or ~/.aws/credentials
+        bedrock_runtime = boto3.client('bedrock-runtime', region_name='us-east-1')
+        
+        lang_name = target_lang # We pass the language name or code
+        
+        # We use Claude 3 Haiku as it is fast, cheap, and very smart for translation
+        model_id = "anthropic.claude-3-haiku-20240307-v1:0"
+        
+        prompt = f"You are an expert medical translator. Translate the following English medical text into the {lang_name} language. Return ONLY the translated text, nothing else. Text to translate: '{text_str}'"
+        
+        body = json.dumps({
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 1024,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            "temperature": 0.1
+        })
+
+        response = bedrock_runtime.invoke_model(
+            body=body,
+            modelId=model_id,
+            accept='application/json',
+            contentType='application/json'
+        )
+        
+        response_body = json.loads(response.get('body').read())
+        translated_text = response_body.get('content')[0].get('text').strip()
+        
+        if translated_text:
+            translation_cache[target_lang][text_str] = translated_text
             save_translation_cache()
-            return result
+            return translated_text
+            
         return text
     except Exception as e:
-        print(f"Translation error: {e}")
+        print(f"Bedrock Translation error: {e}")
+        # Fallback to returning original text if AWS fails or isn't configured yet
         return text
 
 @app.context_processor
@@ -217,6 +318,8 @@ def predict():
         input_df = pd.DataFrame([[1 if col in selected else 0 for col in symptom_list]], columns=symptom_list)
 
         top3       = get_top3(input_df)
+        if not top3:
+            return jsonify({"error": "Symptom match too low. Please consult a doctor."}), 400
         disease    = top3[0]["disease"]
         confidence = top3[0]["confidence"]
         urgency    = get_urgency(disease, selected)
@@ -261,33 +364,62 @@ def translate_symptoms():
         return jsonify({"translations": _symptom_cache[lang]})
 
     try:
-        from deep_translator import GoogleTranslator
-        lang_code = LANG_CODE_MAP.get(lang, "en")
-        translator = GoogleTranslator(source="en", target=lang_code)
+        import boto3
+        import json
+        
+        lang_name = lang # We pass the language name or code
+        bedrock_runtime = boto3.client('bedrock-runtime', region_name='us-east-1')
+        model_id = "anthropic.claude-3-haiku-20240307-v1:0"
 
-        translations = {}
-        # Translate in batches of 10 to avoid rate limits
-        batch_size = 10
         syms = symptom_list[:]
         eng_texts = [s.replace("_", " ") for s in syms]
+        
+        prompt = f"You are a medical translator. Translate this JSON array of English medical symptoms into the {lang} language. Return ONLY a valid JSON array of strings in the exact same order as the input. Array to translate: {json.dumps(eng_texts)}"
 
-        for i in range(0, len(eng_texts), batch_size):
-            batch = eng_texts[i:i+batch_size]
-            try:
-                for j, txt in enumerate(batch):
-                    translated = translator.translate(txt)
-                    translations[syms[i+j]] = translated if translated else txt
-            except Exception:
-                for j, txt in enumerate(batch):
-                    translations[syms[i+j]] = txt
+        body = json.dumps({
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 2048,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            "temperature": 0.1
+        })
+
+        response = bedrock_runtime.invoke_model(
+            body=body,
+            modelId=model_id,
+            accept='application/json',
+            contentType='application/json'
+        )
+        
+        response_body = json.loads(response.get('body').read())
+        translated_array_str = response_body.get('content')[0].get('text').strip()
+        
+        # Parse the JSON array returned by Bedrock
+        try:
+            translated_array = json.loads(translated_array_str)
+        except json.JSONDecodeError:
+            print("Failed to parse Bedrock JSON response array")
+            return jsonify({"translations": {s: s.replace("_", " ") for s in symptom_list}}), 200
+
+        translations = {}
+        for i, sym in enumerate(syms):
+            if i < len(translated_array):
+                translations[sym] = translated_array[i]
+            else:
+                translations[sym] = eng_texts[i]
 
         _symptom_cache[lang] = translations
         return jsonify({"translations": translations})
     except Exception as e:
-        print(f"Symptom translation error: {e}")
+        print(f"Bedrock Symptom translation error: {e}")
         return jsonify({"translations": {s: s.replace("_", " ") for s in symptom_list}}), 200
 
 
+@app.route("/translate_batch", methods=["POST"])
 def translate_batch():
     """
     Batch-translate medical content into a target language.
@@ -567,6 +699,88 @@ def disease_info():
         "jan_aushadhi_url": "https://janaushadhi.gov.in/StoreLocater.aspx",
         "ayushman_url": "https://pmjay.gov.in"
     })
+
+# ============================================================
+# AWS RAG: HEALTH ASSISTANT ROUTE (Titan + Claude 3)
+# ============================================================
+
+@app.route("/ask_assistant", methods=["POST"])
+def ask_assistant():
+    """RAG-powered health assistant endpoint."""
+    data = request.get_json()
+    query = data.get("query", "").strip()
+    lang = data.get("lang", "en")
+    
+    if not query:
+        return jsonify({"error": "Query is required"}), 400
+        
+    try:
+        import boto3
+        import numpy as np
+        
+        # 1. RETRIEVE: Embed the user's query
+        query_embedding = get_embedding(query)
+        context_text = ""
+        
+        if query_embedding and KNOWLEDGE_BASE_EMBEDDINGS:
+            # Calculate cosine similarity using numpy
+            q_vec = np.array(query_embedding)
+            similarities = []
+            
+            for doc_emb in KNOWLEDGE_BASE_EMBEDDINGS:
+                d_vec = np.array(doc_emb)
+                sim = np.dot(q_vec, d_vec) / (np.linalg.norm(q_vec) * np.linalg.norm(d_vec))
+                similarities.append(sim)
+                
+            best_idx = np.argmax(similarities)
+            best_score = similarities[best_idx]
+            
+            # If the best match is reasonably relevant, use it as context
+            if best_score > 0.4:
+                context_text = KNOWLEDGE_BASE_DOCS[best_idx]
+                
+        # 2. GENERATE: Prompt Claude 3 with the context
+        bedrock_runtime = boto3.client('bedrock-runtime', region_name='us-east-1')
+        model_id = "anthropic.claude-3-haiku-20240307-v1:0"
+        
+        system_prompt = f"You are a helpful, empathetic health assistant for rural India. Answer the user's question safely and accurately in the {lang} language."
+        if context_text:
+            system_prompt += f" Use this verified medical context to ground your answer: '{context_text}'."
+        else:
+            system_prompt += " Since no specific context was found, provide general safe advice and recommend consulting a local doctor or PHC."
+            
+        system_prompt += " Keep the answer concise (under 4 sentences). Do not prescribe specific new medications unless it is in the context (like Paracetamol for fever). Always add a disclaimer to consult a doctor."
+
+        body = json.dumps({
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 512,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": f"System Context: {system_prompt} \n\n User Question: {query}"
+                }
+            ],
+            "temperature": 0.2
+        })
+
+        response = bedrock_runtime.invoke_model(
+            body=body,
+            modelId=model_id,
+            accept='application/json',
+            contentType='application/json'
+        )
+        
+        response_body = json.loads(response.get('body').read())
+        assistant_reply = response_body.get('content')[0].get('text').strip()
+        
+        return jsonify({"response": assistant_reply, "context_used": bool(context_text)})
+        
+    except Exception as e:
+        import traceback
+        with open("rag_debug.txt", "w") as f:
+            f.write(traceback.format_exc())
+        print(f"RAG Assistant error: {e}")
+        return jsonify({"error": "Sorry, the health assistant is currently unavailable."}), 500
 
 
 # ============================================================

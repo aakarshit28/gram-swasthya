@@ -466,7 +466,7 @@
                 document.getElementById('statTopDisease').textContent = stats.top_disease || '—';
 
                 if (!stats.total) {
-                    document.getElementById('dashSubtitle').textContent = "{{ _t('No patient assessments yet. Click \\'New Patient Assessment\\' to start.') }}";
+                    document.getElementById('dashSubtitle').textContent = "{{ _t('No patient assessments yet. Click New Patient Assessment to start.') }}";
                 } else {
                     document.getElementById('dashSubtitle').textContent =
                         "{{ _t('You have assessed ') }}" + stats.total + "{{ _t(' patient(s) so far.') }}";
@@ -487,7 +487,7 @@
                     '<div class="empty-state">' +
                     '<span class="empty-icon">👥</span>' +
                     '<h3 class="empty-title">' + "{{ _t('No patients yet') }}" + '</h3>' +
-                    '<p class="empty-text">' + "{{ _t('When you assess patients, they\\'ll appear here for your records.') }}" + '</p>' +
+                    '<p class="empty-text">' + "{{ _t('When you assess patients, they will appear here for your records.') }}" + '</p>' +
                     '<a href="/home" class="btn-assess" style="display:inline-flex;">🩺 ' + "{{ _t('Start First Assessment') }}" + '</a>' +
                     '</div>';
                 return;
