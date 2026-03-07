@@ -151,8 +151,7 @@
           <label
             style="display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent-light); margin-bottom:8px;">&#127973;
             {{ _t('ASHA Mode — Patient Name') }}</label>
-          <input type="text" id="ashaPatientName"
-            placeholder="{{ _t('Enter patient full name e.g. Sunita Devi') }}"
+          <input type="text" id="ashaPatientName" placeholder="{{ _t('Enter patient full name e.g. Sunita Devi') }}"
             style="width:100%; padding:10px 14px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:0.95rem; color:var(--text-primary); box-sizing:border-box;" />
         </div>
       </div>
@@ -634,12 +633,12 @@
       log.style.display = "flex";
 
       // Add User Message
-      log.innerHTML += '<div style="align-self: flex-end; background: var(--border); color: var(--text-primary); padding: 8px 12px; border-radius: 12px 12px 0 12px; max-width: 85%;">' + query + '</div>';
+      log.insertAdjacentHTML('beforeend', '<div style="align-self: flex-end; background: var(--border); color: var(--text-primary); padding: 8px 12px; border-radius: 12px 12px 0 12px; max-width: 85%;">' + query + '</div>');
       input.value = "";
 
       // Loading State
       var loadingId = "loader_" + Date.now();
-      log.innerHTML += '<div id="' + loadingId + '" style="align-self: flex-start; background: rgba(59,130,246,0.1); color: var(--primary-light); border: 1px solid rgba(59,130,246,0.2); padding: 8px 12px; border-radius: 12px 12px 12px 0; max-width: 85%;">{{ _t("Thinking...") }}</div>';
+      log.insertAdjacentHTML('beforeend', '<div id="' + loadingId + '" style="align-self: flex-start; background: rgba(59,130,246,0.1); color: var(--primary-light); border: 1px solid rgba(59,130,246,0.2); padding: 8px 12px; border-radius: 12px 12px 12px 0; max-width: 85%;">{{ _t("Thinking...") }}</div>');
 
       btn.disabled = true;
       btn.textContent = "...";
@@ -656,17 +655,20 @@
         });
 
         var data = await res.json();
-        document.getElementById(loadingId).remove();
+        var loaderEl = document.getElementById(loadingId);
+        if (loaderEl) loaderEl.remove();
 
         if (data.error) throw new Error(data.error);
 
         // Add Assistant Message
         var replyPrefix = data.context_used ? '<span style="font-size:0.75rem; color:var(--success); display:block; margin-bottom:4px; font-weight:600;">✓ Grounded in Govt. Guidelines</span>' : '';
-        log.innerHTML += '<div style="align-self: flex-start; background: rgba(59,130,246,0.1); color: var(--primary-light); border: 1px solid rgba(59,130,246,0.2); padding: 8px 12px; border-radius: 12px 12px 12px 0; max-width: 85%; line-height:1.4;">' + replyPrefix + data.response + '</div>';
+        log.insertAdjacentHTML('beforeend', '<div style="align-self: flex-start; background: rgba(59,130,246,0.1); color: var(--primary-light); border: 1px solid rgba(59,130,246,0.2); padding: 8px 12px; border-radius: 12px 12px 12px 0; max-width: 85%; white-space: pre-wrap; line-height:1.4;">' + replyPrefix + data.response + '</div>');
 
       } catch (err) {
-        document.getElementById(loadingId).remove();
-        log.innerHTML += '<div style="align-self: flex-start; background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); padding: 8px 12px; border-radius: 12px 12px 12px 0; max-width: 85%;">{{ _t("Sorry, the assistant is currently unavailable.") }}</div>';
+        var loaderEl = document.getElementById(loadingId);
+        if (loaderEl) loaderEl.remove();
+        console.error(err);
+        log.insertAdjacentHTML('beforeend', '<div style="align-self: flex-start; background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); padding: 8px 12px; border-radius: 12px 12px 12px 0; max-width: 85%;">{{ _t("Sorry, the assistant is currently unavailable.") }}</div>');
       } finally {
         btn.disabled = false;
         btn.textContent = "{{ _t('Ask') }}";
