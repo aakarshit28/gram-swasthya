@@ -132,6 +132,15 @@ def save_translation_cache():
         except Exception as e:
             print(f"Error saving cache: {e}")
 
+_bedrock_client = None
+
+def get_bedrock_client():
+    global _bedrock_client
+    if _bedrock_client is None:
+        import boto3
+        _bedrock_client = boto3.client('bedrock-runtime', region_name='us-east-1')
+    return _bedrock_client
+
 # ============================================================
 # RAG SYSTEM INITIALIZATION (Knowledge Base + Titan Embeddings)
 # ============================================================
@@ -140,9 +149,8 @@ KNOWLEDGE_BASE_EMBEDDINGS = []
 
 def get_embedding(text):
     """Get embedding from Amazon Titan Text V2 via Bedrock"""
-    import boto3
     try:
-        bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
+        bedrock = get_bedrock_client()
         body = json.dumps({
             "inputText": text,
             "dimensions": 512,
@@ -181,6 +189,8 @@ def init_rag_system():
                         for chunk in chunks:
                             chunk = chunk.strip()
                             if len(chunk) > 20:
+                                import time
+                                time.sleep(0.3)
                                 emb = get_embedding(chunk)
                                 if emb:
                                     KNOWLEDGE_BASE_DOCS.append(chunk)
@@ -213,12 +223,10 @@ def translate_text(text, target_lang):
         return translation_cache[target_lang][text_str]
 
     try:
-        import boto3
         import json
         
         # Initialize Bedrock client
-        # Requires AWS credentials to be configured in the environment or ~/.aws/credentials
-        bedrock_runtime = boto3.client('bedrock-runtime', region_name='us-east-1')
+        bedrock_runtime = get_bedrock_client()
         
         lang_name = target_lang # We pass the language name or code
         
@@ -364,11 +372,10 @@ def translate_symptoms():
         return jsonify({"translations": _symptom_cache[lang]})
 
     try:
-        import boto3
         import json
         
         lang_name = lang # We pass the language name or code
-        bedrock_runtime = boto3.client('bedrock-runtime', region_name='us-east-1')
+        bedrock_runtime = get_bedrock_client()
         model_id = "anthropic.claude-3-haiku-20240307-v1:0"
 
         syms = symptom_list[:]
@@ -715,7 +722,6 @@ def ask_assistant():
         return jsonify({"error": "Query is required"}), 400
         
     try:
-        import boto3
         import numpy as np
         
         # 1. RETRIEVE: Embed the user's query
@@ -740,7 +746,7 @@ def ask_assistant():
                 context_text = KNOWLEDGE_BASE_DOCS[best_idx]
                 
         # 2. GENERATE: Prompt Claude 3 with the context
-        bedrock_runtime = boto3.client('bedrock-runtime', region_name='us-east-1')
+        bedrock_runtime = get_bedrock_client()
         model_id = "anthropic.claude-3-haiku-20240307-v1:0"
         
         system_prompt = f"You are a helpful, empathetic health assistant for rural India. Answer the user's question safely and accurately in the {lang} language."
@@ -777,10 +783,14 @@ def ask_assistant():
         
     except Exception as e:
         import traceback
-        with open("rag_debug.txt", "w") as f:
-            f.write(traceback.format_exc())
+        debug_path = os.path.join(BASE_DIR, "rag_debug.txt")
+        try:
+            with open(debug_path, "w") as f:
+                f.write(traceback.format_exc())
+        except:
+            pass
         print(f"RAG Assistant error: {e}")
-        return jsonify({"error": "Sorry, the health assistant is currently unavailable."}), 500
+        return jsonify({"error": f"Backend Error: {str(e)}"}), 500
 
 
 # ============================================================
